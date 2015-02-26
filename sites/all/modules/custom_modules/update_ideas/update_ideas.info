@@ -1,0 +1,3 @@
+name = update_ideas
+description = Updates Status field value on click.
+core = 7.x

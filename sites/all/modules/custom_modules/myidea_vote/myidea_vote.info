@@ -1,0 +1,3 @@
+name = vote
+description = Tracks vote count.
+core = 7.x

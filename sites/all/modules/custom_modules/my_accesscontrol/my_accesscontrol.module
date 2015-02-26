@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * Implementation of hook_menu_alter().
+ */
+function my_accesscontrol_menu_alter(&$items) {
+  //disable the page at node/%node/edit based on field_status
+  $items['node/%node/edit']['access callback'] = 'my_accesscontrol_callback';
+  //disable the page at node/%node/delete based on field_status
+  $items['node/%node/delete']['access callback'] = 'my_accesscontrol_callback';
+
+}
+
+function my_accesscontrol_callback($op, $node) {
+	global $user;
+	if($op == 'update') {
+	if (!(in_array('administrator', array_values($user->roles)))) 
+    	if ((!(strcmp($node->field_status['und'][0]['value'], 'Approved'))) || (!(strcmp($node->field_status['und'][0]['value'], 'Rejected')))) {
+          return FALSE;
+	    }	
+        else return node_access('update', $node);
+	else return node_access('update', $node);
+   }
+   else if($op == 'delete') {
+   	if (!(in_array('administrator', array_values($user->roles)))) 
+    	if (!(strcmp($node->field_status['und'][0]['value'], 'Approved'))) {
+          return FALSE;
+	    }	
+        else return node_access('delete', $node);
+	else return node_access('delete', $node);
+   }
+}

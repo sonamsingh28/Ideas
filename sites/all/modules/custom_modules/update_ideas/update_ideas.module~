@@ -1,0 +1,47 @@
+<?php
+
+function update_ideas_help($path, $arg) {
+  switch ($path) {
+    case "admin/help#update_ideas":
+      return '<p>' . t("Updates fields in Ideas content.") . '</p>';
+      break;
+  }
+}
+
+
+/* ***************************
+* hook_menu displays menu links
+* When I go to this page, trigger the function to update_ideas_now
+* and display the results message
+**************************** */
+function update_ideas_menu() {
+  $items = array();
+  $items['update'] = array(
+    // Page title
+    'title' => 'Idea update completed',
+    // What this link does
+    'description' => 'Display the update Ideas results',
+    'type' => MENU_CALLBACK,
+    // Name of function to execute
+    'page callback' => 'update_ideas_now',
+    'page arguments' => array(1),
+    // Who can access this menu item? Select a permission already in your lists.
+    'access callback' => 'user_is_logged_in', 
+    //'access arguments' => array('use the administration toolbar '),
+  );
+  return $items;
+}
+
+
+
+function update_ideas_now($nid){
+  $finished_message='Your Idea is Live!';
+// Load the node by NID
+watchdog('sonam', serialize( $nid));
+$node = node_load($nid);
+$node->field_status['und'][0]['value']   = "Completed";
+
+node_save($node);
+  return $finished_message;
+
+}

@@ -1,0 +1,3 @@
+name = myidea_widget
+description = Controls visibility of comment box.
+core = 7.x
