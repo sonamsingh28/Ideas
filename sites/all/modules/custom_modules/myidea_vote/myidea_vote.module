@@ -1,26 +1,24 @@
 <?php
 
 function myidea_vote_votingapi_insert($votes) {
-    //dpm($votes);
-    watchdog('sonam', 'getting in from custom module');  
-    $nid=$_GET['content_id'];
-    $msg='';
-    votingapi_recalculate_results('node', $nid);
-    $results = rate_get_results('node', $nid, 1);
-    watchdog('sonam', serialize( $results));
-    if(($results['up'] > 1) && ( $results['down'] < 1)) {
-        $node = node_load($nid);
-        $node->field_status['und'][0]['value'] = "Toapprove";
-        node_save($node);
-        $msg="Idea added in the approval list.";
+  //dpm($votes);
+  watchdog('sonam', 'getting in from custom module');
+  $nid=$_GET['content_id'];
+  $msg='';
+  votingapi_recalculate_results('node', $nid);
+  $results = rate_get_results('node', $nid, 1);
+  if (($results['up'] > 1) && ( $results['down'] < 1)) {
+    $node = node_load($nid);
+    $node->field_status['und'][0]['value'] = "Toapprove";
+    node_save($node);
+    $msg="Idea added in the approval list.";
     }
-    else if(($results['down'] > 5) && ( $results['up'] < 2)) {
-        $node = node_load( $nid);
-        $node->field_status['und'][0]['value'] = "Toreject";
-        node_save($node);
-        $msg="Idea added in the rejection list.";
+  elseif (($results['down'] > 5) && ( $results['up'] < 2)) {
+    $node = node_load( $nid);
+    $node->field_status['und'][0]['value'] = "Toreject";
+    node_save($node);
+    $msg="Idea added in the rejection list.";
     }
-	echo $msg;
-	//dpm($results);
+  echo $msg;
 }
 

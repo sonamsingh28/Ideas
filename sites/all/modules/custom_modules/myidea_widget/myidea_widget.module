@@ -4,9 +4,9 @@
  */
 
 function myidea_widget_node_view($node, $view_mode, $langcode = '') {
-  if((!(strcmp($node->field_status['und'][0]['value'], "InProgress"))) || (!(strcmp($node->field_status['und'][0]['value'], "Approved")))) {
+  if ($node->type == 'myideas') {
+  if ((!(strcmp($node->field_status['und'][0]['value'], "InProgress"))) || (!(strcmp($node->field_status['und'][0]['value'], "Approved")))) {
     unset($node->content['rate_voting']);
   }
-  //watchdog('sonam', serialize( $node));
-  //watchdog('sonam', 'getting in from custom widget module');  
+}
 }

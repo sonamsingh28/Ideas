@@ -1,0 +1,3 @@
+name = Custom_action_vbo
+description = Defines custom action for vbo module
+core = 7.x

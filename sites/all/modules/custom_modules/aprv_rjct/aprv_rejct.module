@@ -1,0 +1,58 @@
+<?php
+/**
+ * Implements hook_entity_view().
+ *
+ * Handles the 'show_in_links' and 'show_as_field' flag options.
+ *
+ */
+function aprv_rejct_entity_view($entity, $type, $view_mode, $langcode) {
+
+    unset($entity->content['links']['flag']['#links']['flag-rejection_flag']);
+    unset($entity->content['links']['flag']['#links']['flag-approving_flag']);
+}
+/**
+ * Implements hook_flag_flag().
+ */
+function aprv_rejct_flag_flag($flag, $entity_id, $account, $flagging) {
+  if($flag->name == 'approving_flag') {
+  $node = node_load($entity_id);
+  $node->field_status['und'][0]['value'] = 'Approved';
+  node_save($node);
+  /*Creating custom node of type myplans*/
+  $nwnode = new stdClass(); // We create a new node object
+  $nwnode->type = "myplans"; // Or any other content type you want
+  $nwnode->title = $node->title;
+  $nwnode->language = 'und';
+  node_object_prepare($nwnode); // Set some default values.
+  $nwnode->uid = $node->uid; // Or any id you wish
+  // Let's add standard body field
+  $nwnode->body[$node->language][0]['value'] = $node->body['und'][0]['value'];
+  //$nwnode->body[$node->language][0]['summary'] = 'Here goes a summary';
+  $nwnode->body['und'][0]['format'] = $node->body['und'][0]['format'];
+  $nwnode->field_plan_status[$node->language][0]['value'] = 'new';
+  $nwnode->field_plan_tags = $node->field_free_tags;
+  $node = node_submit($nwnode); // Prepare node for a submit
+  node_save($node); // After this call we'll get a nid
+  }
+  else if($flag->name == 'rejection_flag') {
+  $node = node_load($entity_id);
+  $node->field_status['und'][0]['value'] = 'Rejected';
+  node_save($node);	
+  }
+}
+
+/**
+ * Implements hook_flag_unflag().
+ */
+function aprv_rejct_flag_unflag($flag, $entity_id, $account, $flagging) {
+  if($flag->name == 'approving_flag') {
+  $node = node_load($entity_id);
+  $node->field_status['und'][0]['value'] = 'Toapprove';
+  node_save($node);
+  }
+  else if($flag->name == 'rejection_flag') {
+  $node = node_load($entity_id);
+  $node->field_status['und'][0]['value'] = 'Toreject';
+  node_save($node);	
+  }
+}
