@@ -5,5 +5,5 @@
 function myidea_readonly_form_alter(&$form, &$form_state, $form_id) {
   global $user;
   if (!(in_array('administrator', array_values($user->roles))))
-  $form['field_statuss']['#disabled'] = TRUE; 
+  $form['field_status']['#disabled'] = TRUE; 
 }
