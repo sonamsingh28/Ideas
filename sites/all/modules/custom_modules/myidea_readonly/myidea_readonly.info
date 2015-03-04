@@ -1,0 +1,3 @@
+name = myidea_readonly
+description = Creates a readonly node field
+core = 7.x

@@ -4,21 +4,27 @@
  */
 function custom_action_vbo_action_info() {
   return array(
-    'myidea_change_status' => array( // declare the function name to be used.
+    'myidea_approve' => array( // declare the function name to be used.
     'type' => 'node', // can be node,comment etc
     'label' => t('Approve Idea'), // the name of the operation which is displayed to the user.
+    'configurable' => FALSE,
+    'pass rows' => TRUE,//entire views row is passed as context in action callback.
+    ),
+    'myidea_reject' => array( // declare the function name to be used.
+    'type' => 'node', // can be node,comment etc
+    'label' => t('Reject Idea'), // the name of the operation which is displayed to the user.
     'configurable' => FALSE,
     'pass rows' => TRUE,//entire views row is passed as context in action callback.
     ),
     );
 }
 /**
- * Implements callback function
+ * Implements callback function to approve idea
  */
-function myidea_change_status($entity, $context) {
+function myidea_approve($entity, $context) {
   //dpm($context);
   //dpm($entity);
-  $account = user_load_by_name($context['author']);
+  //$account = user_load_by_name($context['author']);
   $node = node_load($entity->nid);
   $node->field_status['und'][0]['value'] = 'Approved';
   node_save($node);
@@ -37,4 +43,15 @@ function myidea_change_status($entity, $context) {
   $nwnode->field_plan_tags = $node->field_free_tags;
   $nwnode = node_submit($nwnode); // Prepare node for a submit
   node_save($nwnode); // After this call we'll get a nid
+}
+/**
+ * Implements callback function to reject idea
+ */
+function myidea_reject($entity, $context) {
+  //dpm($context);
+  //dpm($entity);
+  //$account = user_load_by_name($context['author']);
+  $node = node_load($entity->nid);
+  $node->field_status['und'][0]['value'] = 'Rejected';
+  node_save($node);
 }
