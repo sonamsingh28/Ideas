@@ -5,7 +5,7 @@
 
 function myidea_widget_node_view($node, $view_mode, $langcode = '') {
   if ($node->type == 'myideas') {
-  if ((!(strcmp($node->field_status['und'][0]['value'], "InProgress"))) || (!(strcmp($node->field_status['und'][0]['value'], "Approved")))) {
+  if ((!(strcmp($node->field_status['und'][0]['value'], '0'))) || (!(strcmp($node->field_status['und'][0]['value'], '4')))) {
     unset($node->content['rate_voting']);
   }
 }

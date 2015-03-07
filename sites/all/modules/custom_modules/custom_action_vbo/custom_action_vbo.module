@@ -26,7 +26,7 @@ function myidea_approve($entity, $context) {
   //dpm($entity);
   //$account = user_load_by_name($context['author']);
   $node = node_load($entity->nid);
-  $node->field_status['und'][0]['value'] = 'Approved';
+  $node->field_status['und'][0]['value'] = 4;
   node_save($node);
   /* Creating custom node of type myplans*/
   $nwnode = new stdClass(); // We create a new node object
@@ -52,6 +52,6 @@ function myidea_reject($entity, $context) {
   //dpm($entity);
   //$account = user_load_by_name($context['author']);
   $node = node_load($entity->nid);
-  $node->field_status['und'][0]['value'] = 'Rejected';
+  $node->field_status['und'][0]['value'] = 5;
   node_save($node);
 }

@@ -1,0 +1,3 @@
+name = top_author
+description = Displays top authors
+core = 7.x

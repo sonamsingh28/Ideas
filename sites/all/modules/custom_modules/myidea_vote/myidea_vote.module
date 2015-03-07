@@ -3,19 +3,20 @@
 function myidea_vote_votingapi_insert($votes) {
   //dpm($votes);
   watchdog('sonam', 'getting in from custom module');
-  $nid=$_GET['content_id'];
+  //$nid=$_GET['content_id'];
+  $nid = $votes[0]['entity_id'];
   $msg='';
   votingapi_recalculate_results('node', $nid);
   $results = rate_get_results('node', $nid, 1);
   if (($results['up'] > 1) && ( $results['down'] < 1)) {
     $node = node_load($nid);
-    $node->field_status['und'][0]['value'] = "Toapprove";
+    $node->field_status['und'][0]['value'] = 2;
     node_save($node);
     $msg="Idea added in the approval list.";
     }
   elseif (($results['down'] > 5) && ( $results['up'] < 2)) {
     $node = node_load( $nid);
-    $node->field_status['und'][0]['value'] = "Toreject";
+    $node->field_status['und'][0]['value'] = 3;
     node_save($node);
     $msg="Idea added in the rejection list.";
     }

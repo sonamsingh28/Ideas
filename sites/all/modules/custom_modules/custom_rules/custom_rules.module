@@ -1,0 +1,58 @@
+<?php
+function custom_rules_for_top_author() {
+  //here the code for buying a package will be located
+  //when that code returns that a package was bought trigger the rule
+  global $user;
+  rules_invoke_event('author_in_top_five', $user);
+  watchdog('your_module',t('A Member !uid entered top 5.', array('!uid' => $user->uid)));
+}
+/**
+ * implementation of hook_rules_condition_info()
+ */
+function custom_rules_rules_condition_info() {
+  return array(
+    'custom_rules_condition' => array(
+      'label' => t('author has highest vote'),
+      /*'arguments' => array(
+        'package_id' => array('type' => 'value', 'label' => t('The type of the purchased package.')),
+        'package_type' => array('type' => 'string', 'label' => t('The type of the purchased package is')),
+     ),*/
+      'module' => 'custom_rules',
+    ),
+  );
+}
+
+/**
+ * Condition packages_condition_packagetype
+ */
+function custom_rules_condition() {
+  //$package = package_load($pid);
+  return true;//($package->type == $type) ? true : false;
+}
+
+/**
+ * Implementation of hook_token_list()
+ */
+function custom_rules_token_list($type = 'all') {
+  if ($type == 'all'){
+    $tokens['custom_rules'] = array(
+      'username' => t('The name of the uSeR'),   
+    );
+  }
+
+  return $tokens;
+}
+
+/**
+ * Implementation of hook token api
+ */
+function custom_rules_token_values($type, $object = NULL, $options = array()) {
+  $tokens = array();
+  
+      $tokens = array(
+        'username' => $object->name,
+      );
+   
+
+  return $tokens;
+}

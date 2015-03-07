@@ -75,7 +75,7 @@
  */
 ?>
 <?php 
-if(($node->uid == $user->uid) && ($node->type == 'myideas') && ($node->field_status['und'][0]['value'] == 'InProgress')) 
+if(($node->uid == $user->uid) && ($node->type == 'myideas') && ($node->field_status['und'][0]['value'] == 0)) 
 echo '<div id="golive"> <a href="/update/'.$node->nid.'"/>Go Live </a> </div>';
 if (!$page): ?>
   <article id="node-<?php print $node->nid; ?>" class="<?php print $classes; ?> clearfix"<?php print $attributes; ?>>

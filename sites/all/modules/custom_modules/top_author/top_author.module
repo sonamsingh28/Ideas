@@ -1,0 +1,85 @@
+<?php
+function top_author_votingapi_insert($votes) {
+/*Calculating top 5 authors before saving current vote*/
+  $users = entity_load('user');
+  foreach ($users as $user) {
+  $upvote[$user->uid] = '';
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+  ->entityCondition('bundle', 'myideas')
+  ->propertyCondition('uid', $user->uid);
+  $nodes = $query->execute(); 
+  foreach ($nodes['node'] as $id) {
+    $results = rate_get_results('node', $id->nid, 1);
+    $upvote[$user->uid] += $results['up'];
+    }
+  }
+  arsort($upvote);
+  $topfive = array_slice($upvote, 0, 3, true);
+  dpm($topfive); 
+
+/*Saving the current vote*/
+  $nid = $votes[0]['entity_id'];
+  votingapi_recalculate_results('node', $nid);
+  $results = rate_get_results('node', $nid, 1); 
+
+/*Calculating top 5 authors after saving current vote*/
+  $users = entity_load('user');
+  foreach ($users as $user) {
+  $nupvote[$user->uid] = '';
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+  ->entityCondition('bundle', 'myideas')
+  ->propertyCondition('uid', $user->uid);
+  $nodes = $query->execute(); 
+  foreach ($nodes['node'] as $id) {
+    $results = rate_get_results('node', $id->nid, 1);
+    $nupvote[$user->uid] += $results['up'];
+    }
+  }
+  arsort($nupvote);
+  dpm($upvote);
+  $ntopfive = array_slice($nupvote, 0, 3, true);
+  dpm($ntopfive); 
+/*Checking if any new author entered top 5 */
+  $rmtop = array_diff_key($topfive, $ntopfive);
+  $entrtop = array_diff_key($ntopfive, $topfive);
+dpm($rmtop);
+dpm($entrtop);
+foreach ($rmtop as $key => $value) {
+    dpm('remv userid = '. $key . 'value = '. $value);
+    $author = user_load($key);
+    dpm($author);
+    $params = array(
+      'subject' => "Removed From Top 5 Author's List.",
+      'body' => "Sorry to inform you that you are no longer in top five Author's List at IdeaZone.",
+      );
+    drupal_mail('top_author', 'top_author_mail', $author->mail, language_default(), $params);
+    drupal_set_message("Sent mail to ".$author->mail);
+  }
+  foreach ($entrtop as $key => $value) {
+    dpm('enter userid = '. $key . 'value = '. $value);
+    $author = user_load($key);
+    dpm($author);
+    $params = array(
+      'subject' => "Entry in Top 5 Author's List.",
+      'body' => "Congratulations! You are now in top five Author's List at IdeaZone.",
+      'username' => $author->name,
+      );
+    drupal_mail('top_author', 'top_author_mail', $author->mail, language_default(), $params);
+    drupal_set_message("Sent mail to ".$author->mail);
+  }
+}
+/**
+ * Implementation of hook_mail().
+ */
+function top_author_mail ($key, &$message, $params) {
+  switch ($key) {
+    case 'top_author_mail':
+      // Set headers etc
+      $message['subject'] = $params['subject'];
+      $message['body'][] = t('Hello @username,', array('@username' => $params['username']));
+      $message['body'][] = $params['body'];
+      break;
+  }
+}

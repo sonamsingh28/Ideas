@@ -1,5 +1,6 @@
 <?php
 // $Id$
+
 /**
  * @file
  * Provides Rules intregration for the Voting API module
