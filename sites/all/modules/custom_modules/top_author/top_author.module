@@ -2,7 +2,7 @@
 
 function top_author_votingapi_insert($votes) {
   //dpm($votes);
-//getting uid of recently voted node
+ //getting uid of recently voted node
   $id = $votes[0]['entity_id'];
   //dpm($id);
   $query = db_select('node', 'n');
@@ -13,7 +13,7 @@ function top_author_votingapi_insert($votes) {
  // dpm($cuid);
   $currentuid = $cuid->fetchAssoc();
   dpm('uid of currently voted node ' . $currentuid['uid']);
-//getting upvotes of uid whose node is currently voted
+ //getting upvotes of uid whose node is currently voted
   $query = db_select('node', 'n');
   $query->innerjoin('votingapi_vote', 'v', 'n.nid = v.entity_id');
   $query->fields('n', array('uid'))
@@ -47,7 +47,7 @@ function top_author_votingapi_insert($votes) {
   $min = min($res);
   dpm('min of top authors ' . $min);
 
-  if ($cup['count'] > $min) {
+  if ($cup['count'] == ($min+1)) {
   dpm('entering uid = ' . $cup['uid']);
   dpm('remove uid = ' . $u);
   $author = user_load($u);
@@ -57,7 +57,7 @@ function top_author_votingapi_insert($votes) {
     'body' => "Sorry to inform you that you are no longer in top five Author's List at IdeaZone.",
     );
     drupal_mail('top_author', 'top_author_mail', $author->mail, language_default(), $params);
-    drupal_set_message(("Sent regret mail to " . $author->mail));
+    drupal_set_message(t("Sent regret mail to " . $author->mail));
 
     $author = user_load($cup['uid']);
     dpm($author);

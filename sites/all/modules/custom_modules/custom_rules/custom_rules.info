@@ -1,3 +1,0 @@
-name = custom_rules
-description = creates rules for sending mail to top 5 authors
-core = 7.x
