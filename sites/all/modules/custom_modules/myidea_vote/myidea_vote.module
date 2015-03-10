@@ -2,7 +2,7 @@
 
 function myidea_vote_votingapi_insert($votes) {
   //dpm($votes);
-  watchdog('sonam', 'getting in from custom module');
+  //watchdog('sonam', 'getting in from custom module');
   //$nid=$_GET['content_id'];
   $nid = $votes[0]['entity_id'];
   $msg='';
