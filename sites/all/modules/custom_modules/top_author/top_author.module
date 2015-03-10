@@ -1,108 +1,65 @@
 <?php
-function abc($a){
-  if($a==0){return $b;}
-  else{
-  $b=$a;
-  return $b;}
-}
 
 function top_author_votingapi_insert($votes) {
   //dpm($votes);
 //getting uid of recently voted node
-  dpm(abc(0));
   $id = $votes[0]['entity_id'];
   //dpm($id);
-  $query = db_select('node','n');
-  $query->innerjoin('votingapi_vote','v','n.nid = v.entity_id');
-  $query->fields('n',array('uid'))
-  ->condition('v.entity_id', $id,'=');
+  $query = db_select('node', 'n');
+  $query->innerjoin('votingapi_vote', 'v', 'n.nid = v.entity_id');
+  $query->fields('n', array('uid'))
+  ->condition('v.entity_id', $id, '=');
   $cuid = $query->execute();
  // dpm($cuid);
   $currentuid = $cuid->fetchAssoc();
   dpm('uid of currently voted node ' . $currentuid['uid']);
-
-  $query = db_select('node','n');
-  $query->innerjoin('votingapi_vote','v','n.nid = v.entity_id');
-  $query->fields('n',array('uid'))
+//getting upvotes of uid whose node is currently voted
+  $query = db_select('node', 'n');
+  $query->innerjoin('votingapi_vote', 'v', 'n.nid = v.entity_id');
+  $query->fields('n', array('uid'))
   //->fields('v',array('value', 'entity_id'))
-  ->condition('v.value','1','=')
-  ->condition('v.entity_type','node','=')
-  ->condition('n.uid',$currentuid,'=');
+  ->condition('v.value', '1', '=')
+  ->condition('v.entity_type', 'node', '=')
+  ->condition('n.uid', $currentuid, '=');
   $query->addExpression("COUNT(n.nid)", 'count');
   $currentupvotes = $query->execute();
   $cup = $currentupvotes->fetchAssoc();
   dpm('total upvotes of current voted user ' . $cup['count']);
   /* Calculating top 5 authors */
-  $query = db_select('node','n');
-  $query->innerjoin('votingapi_vote','v','n.nid = v.entity_id');
-  $query->fields('n',array('uid'))
-  ->fields('v',array('value', 'entity_type'))
-  ->condition('v.value','1','=')
-  ->condition('v.entity_type','node','=')
+  $query = db_select('node', 'n');
+  $query->innerjoin('votingapi_vote', 'v', 'n.nid = v.entity_id');
+  $query->fields('n', array('uid'))
+  ->fields('v', array('value', 'entity_type'))
+  ->condition('v.value', '1', '=')
+  ->condition('v.entity_type', 'node', '=')
+  ->condition('n.uid', $currentuid, '!=')
   ->groupBy('n.uid')
   ->orderBy($query->addExpression("COUNT(n.nid)", 'count'), 'DESC')
-  ->range(0,3);
+  ->range(0, 3);
   $result = $query->execute();
   $res = array();
   $i = 0;
   while ($record = $result->fetchAssoc()) {
     dpm($record['uid'] . ' ' . $record['count']);
     $res[$i++] = $record['count'];
+    $u = $record['uid'];
   }
   $min = min($res);
-  abc($min);
   dpm('min of top authors ' . $min);
 
-  if ($cup['count'] == $min)
-  {
-
-  }
-  
-  /*arsort($upvote);
-  $topfive = array_slice($upvote, 0, 3, TRUE);
-  dpm($topfive);*/
-
-   /*Saving the current vote
-  /*$nid = $votes[0]['entity_id'];
-  votingapi_recalculate_results('node', $nid);
-  $results = rate_get_results('node', $nid, 1);*/
-
- /* Calculating top 5 authors after saving current vote*/
- /*dpm('after');
- $query = db_select('node','n');
-  $query->innerjoin('votingapi_vote','v','n.nid = v.entity_id');
-  $query->fields('n',array('uid'))
-  ->fields('v',array('value', 'entity_type'))
-  ->condition('v.value','1','=')
-  ->condition('v.entity_type','node','=')
-  ->groupBy('n.uid')
-  ->orderBy($query->addExpression("COUNT(n.nid)", 'count'), 'DESC')
-  ->range(0,3);
-  //$query->addExpression("COUNT(n.nid)", 'count');
-  $result = $query->execute();
-  dpm($result);
-  while ($record = $result->fetchAssoc()) {
-    dpm($record);
-  }*/
-  /* Checking if any new author entered top 5 */
-  /*$rmtop = array_diff_key($topfive, $ntopfive);
-  $entrtop = array_diff_key($ntopfive, $topfive);
-  dpm($rmtop);
-  dpm($entrtop);
-  foreach ($rmtop as $key => $value) {
-    dpm('remv userid = ' . $key . 'value = ' . $value);
-    $author = user_load($key);
-    dpm($author);
-    $params = array(
-      'subject' => "Removed From Top 5 Author's List.",
-      'body' => "Sorry to inform you that you are no longer in top five Author's List at IdeaZone.",
-      );
+  if ($cup['count'] > $min) {
+  dpm('entering uid = ' . $cup['uid']);
+  dpm('remove uid = ' . $u);
+  $author = user_load($u);
+  dpm($author);
+  $params = array(
+    'subject' => "Removed From Top 5 Author's List.",
+    'body' => "Sorry to inform you that you are no longer in top five Author's List at IdeaZone.",
+    );
     drupal_mail('top_author', 'top_author_mail', $author->mail, language_default(), $params);
     drupal_set_message(("Sent regret mail to " . $author->mail));
-  }
-  foreach ($entrtop as $key => $value) {
-    dpm('entering userid = ' . $key . 'value = ' . $value);
-    $author = user_load($key);
+
+    $author = user_load($cup['uid']);
     dpm($author);
     $params = array(
       'subject' => "Entry in Top 5 Author's List.",
@@ -112,16 +69,17 @@ function top_author_votingapi_insert($votes) {
     drupal_mail('top_author', 'top_author_mail', $author->mail, language_default(), $params);
     drupal_set_message(t("Sent contratulations mail to " . $author->mail));
   }
-}
+
+  }
 /**
  * Implementation of hook_mail().
  */
-/*function top_author_mail($key, &$message, $params) {
+function top_author_mail($key, &$message, $params) {
   switch ($key) {
     case 'top_author_mail':
       $message['subject'] = $params['subject'];
       $message['body'][] = t('Hello @username,', array('@username' => $params['username']));
       $message['body'][] = $params['body'];
       break;
-  }*/
+  }
 }
